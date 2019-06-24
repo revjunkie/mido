@@ -2128,7 +2128,7 @@ int ext4_alloc_flex_bg_array(struct super_block *sb, ext4_group_t ngroup)
 	if (size <= sbi->s_flex_groups_allocated)
 		return 0;
 
-	new_groups = ext4_kvzalloc(roundup_pow_of_two(size *
+	new_groups = kvzalloc(roundup_pow_of_two(size *
 				   sizeof(*sbi->s_flex_groups)), GFP_KERNEL);
 	if (!new_groups) {
 		ext4_msg(sb, KERN_ERR,
@@ -2136,7 +2136,7 @@ int ext4_alloc_flex_bg_array(struct super_block *sb, ext4_group_t ngroup)
 		return -ENOMEM;
 	}
 	for (i = sbi->s_flex_groups_allocated; i < size; i++) {
-		new_groups[i] = ext4_kvzalloc(roundup_pow_of_two(
+		new_groups[i] = kvzalloc(roundup_pow_of_two(
 					      sizeof(struct flex_groups)),
 					      GFP_KERNEL);
 		if (!new_groups[i]) {
