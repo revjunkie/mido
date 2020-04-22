@@ -2438,7 +2438,7 @@ static struct snd_soc_dai_link msm8952_dai[] = {
 		.ignore_pmdown_time = 1,
 		.id = MSM_FRONTEND_DAI_MULTIMEDIA30,
 	},
-#ifdef CONFIG_SND_SOC_MAX98927
+#if defined(CONFIG_SND_SOC_MAX98927) && !defined(CONFIG_MACH_XIAOMI_MIDO)
         {/* hw:x,41 */
 		.name = "Quinary MI2S TX_Hostless",
 		.stream_name = "Quinary MI2S_TX Hostless Capture",
@@ -2725,7 +2725,7 @@ static struct snd_soc_dai_link msm8952_dai[] = {
 		.stream_name = "Quinary MI2S Capture",
 		.cpu_dai_name = "msm-dai-q6-mi2s.4",
 		.platform_name = "msm-pcm-routing",
-#ifdef CONFIG_SND_SOC_MAX98927
+#if defined(CONFIG_SND_SOC_MAX98927) && !defined(CONFIG_MACH_XIAOMI_MIDO)
 		.codec_dai_name = "max98927-aif1",
 		.codec_name = "max98927",
 #else
@@ -2763,7 +2763,7 @@ static struct snd_soc_dai_link msm8952_quin_dai_link[] = {
 		.stream_name = "Quinary MI2S Playback",
 		.cpu_dai_name = "msm-dai-q6-mi2s.4",
 		.platform_name = "msm-pcm-routing",
-#ifdef CONFIG_SND_SOC_MAX98927
+#if defined(CONFIG_SND_SOC_MAX98927) && !defined(CONFIG_MACH_XIAOMI_MIDO)
 		.codec_dai_name = "max98927-aif1",
 		.codec_name = "max98927",
 #else
