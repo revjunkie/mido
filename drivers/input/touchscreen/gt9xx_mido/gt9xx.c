@@ -2621,13 +2621,13 @@ static const struct attribute_group gt9xx_mido_attr_group = {
 static int gt9xx_mido_proc_init(struct kernfs_node *sysfs_node_parent)
 {
        int ret = 0;
-       char *buf, *path = NULL;
+       char *buf;
        char *key_disabler_sysfs_node, *double_tap_sysfs_node;
        struct proc_dir_entry *proc_entry_tp = NULL;
        struct proc_dir_entry *proc_symlink_tmp = NULL;
        buf = kzalloc(PATH_MAX, GFP_KERNEL);
        if (buf)
-               path = kernfs_path(sysfs_node_parent, buf, PATH_MAX);
+               kernfs_path(sysfs_node_parent, buf, PATH_MAX);
 
        proc_entry_tp = proc_mkdir("touchpanel", NULL);
        if (proc_entry_tp == NULL) {
@@ -2637,7 +2637,7 @@ static int gt9xx_mido_proc_init(struct kernfs_node *sysfs_node_parent)
 
        key_disabler_sysfs_node = kzalloc(PATH_MAX, GFP_KERNEL);
        if (key_disabler_sysfs_node)
-               sprintf(key_disabler_sysfs_node, "/sys%s/%s", path, "disable_keys");
+               sprintf(key_disabler_sysfs_node, "/sys%s/%s", buf, "disable_keys");
        proc_symlink_tmp = proc_symlink("capacitive_keys_disable",
                        proc_entry_tp, key_disabler_sysfs_node);
        if (proc_symlink_tmp == NULL) {
@@ -2647,7 +2647,7 @@ static int gt9xx_mido_proc_init(struct kernfs_node *sysfs_node_parent)
 
        double_tap_sysfs_node = kzalloc(PATH_MAX, GFP_KERNEL);
        if (double_tap_sysfs_node)
-               sprintf(double_tap_sysfs_node, "/sys%s/%s", path, "enable_dt2w");
+               sprintf(double_tap_sysfs_node, "/sys%s/%s", buf, "enable_dt2w");
        proc_symlink_tmp = proc_symlink("enable_dt2w",
                proc_entry_tp, double_tap_sysfs_node);
        if (proc_symlink_tmp == NULL) {
