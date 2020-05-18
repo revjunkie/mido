@@ -57,26 +57,6 @@
 			label = "mpp";
 			/delete-node/ qcom,led_mpp_2;
 		};
-
-		pmi8950_charger: qcom,qpnp-smbcharger {
-			qcom,float-voltage-mv = <4400>;
-			qcom,resume-delta-mv = <50>;
-			qcom,charge-unknown-battery;
-			qcom,override-usb-current;
-			qcom,fastchg-current-comp = <1200>;
-			qcom,float-voltage-comp = <15>;
-			/delete-property/ qcom,autoadjust-vfloat;
-		};
-
-		pmi8950_fg: qcom,fg {
-			qcom,resume-soc = <99>;
-			qcom,fg-iterm-ma = <300>;
-			qcom,fg-chg-iterm-ma = <200>;
-			qcom,fg-cutoff-voltage-mv = <3400>;
-			qcom,fg-cc-cv-threshold-mv = <4390>;
-			qcom,fg-vbat-estimate-diff-mv = <200>;
-			qcom,fg-restore-batt-info;
-		};
 	};
 
 	qcom,pmi8950@3 {
@@ -123,7 +103,7 @@
 	};
 };
 
-/ {
+&vendor {
 	qrd_batterydata: qcom,battery-data {
 		qcom,batt-id-range-pct = <5>;
 		#include "batterydata-qrd-sunwoda-4v4-4100mah.dtsi"
@@ -137,8 +117,15 @@
 };
 
 
-&pmi8950_charger {
+&qpnp_smbcharger {
+	qcom,float-voltage-mv = <4400>;
+	qcom,resume-delta-mv = <50>;
+	qcom,charge-unknown-battery;
+	qcom,override-usb-current;
+	qcom,fastchg-current-comp = <1200>;
+	qcom,float-voltage-comp = <15>;
 	qcom,thermal-mitigation = <3000 2500 2000 2000 1000 500 0>;
+	/delete-property/ qcom,autoadjust-vfloat;
 	/delete-property/ qcom,parallel-usb-min-current-ma;
 	/delete-property/ qcom,parallel-usb-9v-min-current-ma;
 	/delete-property/ qcom,parallel-allowed-lowering-ma;
@@ -148,7 +135,13 @@
 	/delete-property/ qcom,typec-psy-name;
 };
 
-&pmi8950_fg {
+&qpnp_fg {
+	qcom,resume-soc = <99>;
+	qcom,fg-iterm-ma = <300>;
+	qcom,fg-chg-iterm-ma = <200>;
+	qcom,fg-cutoff-voltage-mv = <3400>;
+	qcom,fg-cc-cv-threshold-mv = <4390>;
+	qcom,fg-restore-batt-info;
 	qcom,thermal-coefficients = [c8 86 c1 50 d3 37];
 	qcom,cold-bat-decidegc = <0>;
 	qcom,cool-bat-decidegc = <150>;
