@@ -526,6 +526,7 @@ struct cfs_rq {
 
 #ifdef CONFIG_SCHED_WALT
 	struct walt_sched_stats walt_stats;
+	u64 cumulative_runnable_avg;
 #endif
 
 	int runtime_enabled;
@@ -831,6 +832,9 @@ struct rq {
 	bool notif_pending;
 	u64 last_cc_update;
 	u64 cycles;
+#ifdef CONFIG_CFS_BANDWIDTH
+	u64 cumulative_runnable_avg;
+#endif
 #endif
 
 #ifdef CONFIG_IRQ_TIME_ACCOUNTING
