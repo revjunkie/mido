@@ -488,15 +488,13 @@ static int gf_open(struct inode *inode, struct file *filp)
 	}
 
 	if (status == 0) {
-		if (status == 0) {
-			gf_dev->users++;
-			filp->private_data = gf_dev;
-			nonseekable_open(inode, filp);
-			gf_dbg("Succeed to open device. irq = %d\n",
-							gf_dev->irq);
-				/*power the sensor*/
-				 gf_dev->device_available = 1;
-		}
+		gf_dev->users++;
+		filp->private_data = gf_dev;
+		nonseekable_open(inode, filp);
+		gf_dbg("Succeed to open device. irq = %d\n",
+						gf_dev->irq);
+			/*power the sensor*/
+			 gf_dev->device_available = 1;
 	} else {
 		gf_dbg("No device for minor %d\n", iminor(inode));
 	}
@@ -697,44 +695,41 @@ static int gf_probe(struct platform_device *pdev)
 		list_add(&gf_dev->device_entry, &device_list);
 	} else {
 		gf_dev->devt = 0;
+		goto error_hw;
 	}
 	mutex_unlock(&device_list_lock);
 
-	if (status == 0) {
-		/*input device subsystem */
-		gf_dev->input = input_allocate_device();
-		if (gf_dev->input == NULL) {
-			dev_dbg(&gf_dev->input->dev,
-				"Faile to allocate input device.\n");
-			status = -ENOMEM;
-			goto error;
-		}
+	/*input device subsystem */
+	gf_dev->input = input_allocate_device();
+	if (gf_dev->input == NULL) {
+		dev_dbg(&gf_dev->input->dev,
+			"Failed to allocate input device.\n");
+		status = -ENOMEM;
+		goto error;
+	}
 #ifdef AP_CONTROL_CLK
-		pr_info("Get the clk resource.\n");
-		/* Enable spi clock */
-		if (gfspi_ioctl_clk_init(gf_dev))
-			goto gfspi_probe_clk_init_failed;
+	pr_info("Get the clk resource.\n");
+	/* Enable spi clock */
+	if (gfspi_ioctl_clk_init(gf_dev))
+		goto gfspi_probe_clk_init_failed;
 
+	if (gfspi_ioctl_clk_enable(gf_dev))
+		goto gfspi_probe_clk_enable_failed;
 
-		if (gfspi_ioctl_clk_enable(gf_dev))
-			goto gfspi_probe_clk_enable_failed;
-
-		spi_clock_set(gf_dev, 4.8*1000*1000);
+	spi_clock_set(gf_dev, 4.8*1000*1000);
 #endif
 
-		gf_dev->notifier = goodix_noti_block;
-		fb_register_client(&gf_dev->notifier);
-		gf_reg_key_kernel(gf_dev);
+	gf_dev->notifier = goodix_noti_block;
+	fb_register_client(&gf_dev->notifier);
+	gf_reg_key_kernel(gf_dev);
 
-		wakeup_source_init(&gf_dev->ttw_wl, "goodix_ttw_wl");
-	}
+	wakeup_source_init(&gf_dev->ttw_wl, "goodix_ttw_wl");
 
 	pr_warn("--------gf_probe end---OK.--------\n");
 	return status;
 
 error:
 	gf_cleanup(gf_dev);
-	gf_dev->device_available = 0;
 	if (gf_dev->devt != 0) {
 		pr_info("Err: status = %d\n", status);
 		mutex_lock(&device_list_lock);
@@ -742,6 +737,8 @@ error:
 		device_destroy(gf_class, gf_dev->devt);
 		clear_bit(MINOR(gf_dev->devt), minors);
 		mutex_unlock(&device_list_lock);
+error_hw:
+	gf_dev->device_available = 0;
 
 #ifdef AP_CONTROL_CLK
 gfspi_probe_clk_enable_failed:
@@ -773,6 +770,7 @@ static int gf_remove(struct platform_device *pdev)
 		input_unregister_device(gf_dev->input);
 		input_free_device(gf_dev->input);
 
+	wakeup_source_trash(&gf_dev->ttw_wl);
 	/* prevent new opens */
 	mutex_lock(&device_list_lock);
 	list_del(&gf_dev->device_entry);
@@ -781,9 +779,7 @@ static int gf_remove(struct platform_device *pdev)
 	if (gf_dev->users == 0)
 		kfree(gf_dev);
 
-		mutex_unlock(&device_list_lock);
-
-	wakeup_source_trash(&gf_dev->ttw_wl);
+	mutex_unlock(&device_list_lock);
 
 	FUNC_EXIT();
 	return 0;
