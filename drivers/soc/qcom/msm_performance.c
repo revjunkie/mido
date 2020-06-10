@@ -43,6 +43,10 @@ static struct events events_group;
 static struct task_struct *events_notify_thread;
 
 /**************************sysfs start********************************/
+
+static bool cpu_input_boost = false;
+module_param(cpu_input_boost, bool, 0644);
+
 /*
  * Userspace sends cpu#:min_freq_value to vote for min_freq_value as the new
  * scaling_min. To withdraw its vote it needs to enter cpu#:0
@@ -234,6 +238,8 @@ static int perf_adjust_notify(struct notifier_block *nb, unsigned long val,
 	struct cpu_status *cpu_st = &per_cpu(cpu_stats, cpu);
 	unsigned int min = cpu_st->min, max = cpu_st->max;
 
+	if (!cpu_input_boost)
+		min = policy->min;
 
 	if (val != CPUFREQ_ADJUST)
 		return NOTIFY_OK;
